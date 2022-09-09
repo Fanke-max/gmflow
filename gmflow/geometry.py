@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-
+# 生成光流所需grid等几何信息
 
 def coords_grid(b, h, w, homogeneous=False, device=None):
     y, x = torch.meshgrid(torch.arange(h), torch.arange(w))  # [H, W]
@@ -15,6 +15,8 @@ def coords_grid(b, h, w, homogeneous=False, device=None):
 
     grid = grid[None].repeat(b, 1, 1, 1)  # [B, 2, H, W] or [B, 3, H, W]
 
+    #None可以在所处维度中多一维，具体实现
+
     if device is not None:
         grid = grid.to(device)
 
@@ -28,6 +30,8 @@ def generate_window_grid(h_min, h_max, w_min, w_max, len_h, len_w, device=None):
                            torch.linspace(h_min, h_max, len_h, device=device)],
                           )
     grid = torch.stack((x, y), -1).transpose(0, 1).float()  # [H, W, 2]
+
+    #RAFT的lookup类似物
 
     return grid
 

@@ -110,24 +110,31 @@ class GMFlow(nn.Module):
         assert len(attn_splits_list) == len(corr_radius_list) == len(prop_radius_list) == self.num_scales
 
         for scale_idx in range(self.num_scales):
+            #第k个scale的feature
             feature0, feature1 = feature0_list[scale_idx], feature1_list[scale_idx]
 
             if pred_bidir_flow and scale_idx > 0:
                 # predicting bidirectional flow with refinement
                 feature0, feature1 = torch.cat((feature0, feature1), dim=0), torch.cat((feature1, feature0), dim=0)
+                #直接当成颠倒img1和img2
 
             upsample_factor = self.upsample_factor * (2 ** (self.num_scales - 1 - scale_idx))
 
             if scale_idx > 0:
                 flow = F.interpolate(flow, scale_factor=2, mode='bilinear', align_corners=True) * 2
+                #flow：上一次的整体flow预测
 
             if flow is not None:
-                flow = flow.detach()
+                flow = flow.detach() #stop grad
                 feature1 = flow_warp(feature1, flow)  # [B, C, H, W]
+                #根据flow去lookup feature
 
             attn_splits = attn_splits_list[scale_idx]
+            #第几次refine的windows attn的window数目
             corr_radius = corr_radius_list[scale_idx]
+            #第几次refine的matching半径
             prop_radius = prop_radius_list[scale_idx]
+            #第几次refine的光滑化半径
 
             # add position to features
             feature0, feature1 = feature_add_position(feature0, feature1, attn_splits, self.feature_channels)
@@ -143,11 +150,13 @@ class GMFlow(nn.Module):
 
             # flow or residual flow
             flow = flow + flow_pred if flow is not None else flow_pred
+            #除了第一次，都是残差flow，flow_pred提供梯度
 
             # upsample to the original resolution for supervison
             if self.training:  # only need to upsample intermediate flow predictions at training time
                 flow_bilinear = self.upsample_flow(flow, None, bilinear=True, upsample_factor=upsample_factor)
                 flow_preds.append(flow_bilinear)
+                #上采样到原始flow同大小
 
             # flow propagation with self-attn
             if pred_bidir_flow and scale_idx == 0:

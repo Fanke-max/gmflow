@@ -64,6 +64,7 @@ class CNNEncoder(nn.Module):
         self.conv2 = nn.Conv2d(feature_dims[2], output_dim, 1, 1, 0)
 
         if self.num_branch > 1:
+            #变化stride的卷积，但share卷积的参数
             if self.num_branch == 4:
                 strides = (1, 2, 4, 8)
             elif self.num_branch == 3:
