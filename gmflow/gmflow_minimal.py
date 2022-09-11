@@ -48,7 +48,7 @@ class GMFlow(nn.Module):
                                        nn.Conv2d(256, upsample_factor ** 2 * 9, 1, 1, 0))
 
     def extract_feature(self, img0, img1):
-        concat = torch.cat((img0, img1), dim=0)  # [2B, C, H, W]
+        concat = torch.stack((img0, img1), dim=1).permute(0, 1, 3, 4, 2)  # [B, 2, C, H, W]
         features = self.backbone(concat)  # list of [2B, C, H, W], resolution from high to low
 
         # reverse: resolution from low to high
