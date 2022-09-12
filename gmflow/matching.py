@@ -84,7 +84,7 @@ def local_correlation_softmax(feature0, feature1, local_radius,
 
 def global_correlation_softmax_learnable(feature0, feature1,
                                pred_bidir_flow=False,
-                               model
+                               model = False
                                ):
     # global correlation
     b, c, h, w = feature0.shape
@@ -107,7 +107,6 @@ def global_correlation_softmax_learnable(feature0, feature1,
 
     prob = F.softmax(correlation, dim=-1)  # [B, H*W, H*W]
 
-    correspondence = model.
 
     correspondence = torch.matmul(prob, grid).view(b, h, w, 2).permute(0, 3, 1, 2)  # [B, 2, H, W]
 
