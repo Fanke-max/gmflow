@@ -237,7 +237,7 @@ class TransformerBlock(nn.Module):
                                      shifted_window_attn_mask=shifted_window_attn_mask,
                                      attn_num_splits=attn_num_splits,
                                      )
-
+        #看成QKV,self是Q=K=V，cross是Q!=K=V
         return source
 
 

@@ -161,6 +161,7 @@ class GMFlow(nn.Module):
             # flow propagation with self-attn
             if pred_bidir_flow and scale_idx == 0:
                 feature0 = torch.cat((feature0, feature1), dim=0)  # [2*B, C, H, W] for propagation
+            
             flow = self.feature_flow_attn(feature0, flow.detach(),
                                           local_window_attn=prop_radius > 0,
                                           local_window_radius=prop_radius)
